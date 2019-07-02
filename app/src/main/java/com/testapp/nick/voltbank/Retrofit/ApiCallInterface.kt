@@ -1,6 +1,7 @@
-package com.testapp.nick.voltbank.utils
+package com.testapp.nick.voltbank.Retrofit
 
 import com.testapp.nick.voltbank.PoliceResponse
+import com.testapp.nick.voltbank.utils.Urls
 import retrofit2.Call
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET

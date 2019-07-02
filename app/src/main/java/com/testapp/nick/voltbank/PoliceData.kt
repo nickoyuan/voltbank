@@ -17,5 +17,4 @@ class PoliceData {
     @Expose
     var id: String? = null
 
-
 }

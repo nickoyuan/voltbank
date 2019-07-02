@@ -17,6 +17,4 @@ class PoliceResponse {
     @Expose
     var longitude: String? = null
 
-
-
 }
