@@ -1,5 +1,6 @@
 package com.testapp.nick.voltbank.Retrofit
 
+import com.testapp.nick.voltbank.Model.PoliceDataModel
 import com.testapp.nick.voltbank.PoliceResponse
 import com.testapp.nick.voltbank.utils.Urls
 import retrofit2.Call
@@ -26,14 +27,10 @@ month	"2017-02"
 https://data.police.uk/api/crimes-at-location?date=2017-02&lat=52.629729&lng=-1.131592
  */
 interface ApiCallInterface {
-
-    @FormUrlEncoded
     @GET(Urls.PATH)
     fun  getByDateAndLongLat(
         @Query("date") date : String,
         @Query("lat") latitude : String,
         @Query("lng") longitude : String
-    ) : Call<PoliceResponse>
-
-
+    ) : Call<List<PoliceDataModel>>
 }

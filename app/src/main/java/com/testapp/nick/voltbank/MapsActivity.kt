@@ -1,10 +1,14 @@
 package com.testapp.nick.voltbank
 
 import android.app.ProgressDialog
+import android.location.Location
+import android.location.LocationListener
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.gms.common.ConnectionResult
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -13,12 +17,18 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.testapp.nick.voltbank.utils.NetworkCheck
+import com.google.android.gms.maps.UiSettings
+import com.testapp.nick.voltbank.Model.PoliceDataModel
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback , LocationListener{
 
     private lateinit var mMap: GoogleMap
     lateinit var policeDataViewModel : PoliceDataViewModel
     lateinit var progressDialog : ProgressDialog
+    lateinit var mUiSettings: UiSettings
+    private val DEFAULT_LONGITUDE = -1.131592
+    private val DEFAULT_LATITUDE = 52.629729
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,9 +41,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         policeDataViewModel = ViewModelProviders.of(this).get(PoliceDataViewModel::class.java)
 
-        if(NetworkCheck.isInternetConnected(this))
+        if(NetworkCheck.isInternetConnected(this)
+            && NetworkCheck.isGoogleAvaliable(this) == ConnectionResult.SUCCESS
+        )
         {
-           // policeDataViewModel.getCountriesFromAPIAndStore()
+            policeDataViewModel.getPoliceCrimeDataFromAPI(
+                "2017-02",
+                "52.629729",
+                "-1.131592"
+            )
         }
         else
         {
@@ -42,11 +58,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        /*    val mapFragment = supportFragmentManager
+            val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
-            mapFragment.getMapAsync(this)*/
+            mapFragment.getMapAsync(this)
+
+        policeDataViewModel.getAllCrimesList().observe(this, Observer<List<PoliceDataModel>> { policeDataList ->
+            addMarkerOnMap(policeDataList)
+        })
     }
 
+    fun addMarkerOnMap(policeDataList: List<PoliceDataModel>) {
+       /* for(policeData in policeDataList) {
+            mMap.addMarker(MarkerOptions().position(LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)).title("Marker in London"))
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(unitedKingdom))
+        }*/
+    }
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -58,10 +84,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
+        mUiSettings = mMap.getUiSettings();
         // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        val unitedKingdom = LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
+        mMap.addMarker(MarkerOptions().position(unitedKingdom).title("Marker in London"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(unitedKingdom))
+
+        mUiSettings.setScrollGesturesEnabled(true)
+        mUiSettings.setZoomGesturesEnabled(true)
+        mUiSettings.setZoomControlsEnabled(true)
     }
+
+    override fun onLocationChanged(location: Location?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onProviderEnabled(provider: String?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onProviderDisabled(provider: String?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
 }

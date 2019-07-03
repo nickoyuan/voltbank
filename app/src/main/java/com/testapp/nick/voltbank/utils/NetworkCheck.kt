@@ -1,10 +1,13 @@
 package com.testapp.nick.voltbank.utils
 
+import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.widget.ProgressBar
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 
 class NetworkCheck {
 
@@ -32,6 +35,10 @@ class NetworkCheck {
                 }
             }
             return false
+        }
+
+        fun isGoogleAvaliable(activity : Activity) : Int {
+            return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(activity)
         }
     }
 }

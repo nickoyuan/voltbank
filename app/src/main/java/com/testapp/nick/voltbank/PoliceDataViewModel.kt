@@ -30,26 +30,30 @@
  */
 
 package com.testapp.nick.voltbank
+
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.testapp.nick.voltbank.Model.PoliceDataModel
 import com.testapp.nick.voltbank.Retrofit.ApiResponse
+import com.testapp.nick.voltbank.utils.NetworkClient
 
 
 class PoliceDataViewModel : ViewModel() {
 
-  val responseLiveData: MutableLiveData<ApiResponse> = MutableLiveData()
+    val responseLiveData: MutableLiveData<ApiResponse> = MutableLiveData()
+    val networkClient: NetworkClient = NetworkClient()
+    lateinit var mainActivityRepository: NetworkClient
 
-  fun getAllCrimesList(): LiveData<List<CountryModel>>
-  {
-    return mainActivityRepository.getCountries()
-  }
+     fun getAllCrimesList(): LiveData<List<PoliceDataModel>>
+     {
+       return mainActivityRepository.getCrimes()
+     }
 
+    fun getPoliceCrimeDataFromAPI(date: String, latitude: String, longitude: String) {
+        networkClient.ApiCallAndPutInDB(date, latitude, longitude)
+    }
 
-
-  fun get() {
-    // TODO reset existing victory title and count
-  }
 
 }
 
