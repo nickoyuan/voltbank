@@ -45,13 +45,17 @@ class PoliceDataViewModel : ViewModel() {
     val networkClient: NetworkClient = NetworkClient()
     lateinit var mainActivityRepository: NetworkClient
 
+    init {
+        mainActivityRepository = NetworkClient()
+    }
+
      fun getAllCrimesList(): LiveData<List<PoliceDataModel>>
      {
        return mainActivityRepository.getCrimes()
      }
 
-    fun getPoliceCrimeDataFromAPI(date: String, latitude: String, longitude: String) {
-        networkClient.ApiCallAndPutInDB(date, latitude, longitude)
+    fun getPoliceCrimeDataFromAPI(date: String, latitude: Double, longitude: Double) {
+        networkClient.ApiCallAndPutInDB(date, latitude.toString(), longitude.toString())
     }
 
 

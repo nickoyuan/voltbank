@@ -15,7 +15,7 @@ import retrofit2.Retrofit
 class NetworkClient {
 
     var retrofit: Retrofit? = null
-    var TAG = "TEST"
+    var TAG = "voltBank"
 
     fun getRetrofitClient(): Retrofit {
         if (retrofit == null) {

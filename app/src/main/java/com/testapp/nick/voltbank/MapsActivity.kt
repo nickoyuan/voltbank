@@ -5,11 +5,9 @@ import android.location.Location
 import android.location.LocationListener
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.google.android.gms.common.ConnectionResult
-
+import com.arlib.floatingsearchview.FloatingSearchView
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -19,21 +17,37 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.testapp.nick.voltbank.utils.NetworkCheck
 import com.google.android.gms.maps.UiSettings
 import com.testapp.nick.voltbank.Model.PoliceDataModel
+import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion
+import android.widget.TextView
+import android.widget.DatePicker
+import android.app.DatePickerDialog
+import android.content.Context
+import com.google.android.gms.maps.model.CameraPosition
+import com.whiteelephant.monthpicker.MonthPickerDialog
+import java.util.*
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback , LocationListener{
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
+    GoogleMap.OnCameraMoveStartedListener,
+    GoogleMap.OnCameraMoveListener,
+    GoogleMap.OnCameraMoveCanceledListener,
+    GoogleMap.OnCameraIdleListener {
+
 
     private lateinit var mMap: GoogleMap
-    lateinit var policeDataViewModel : PoliceDataViewModel
-    lateinit var progressDialog : ProgressDialog
+    lateinit var policeDataViewModel: PoliceDataViewModel
+    lateinit var progressDialog: ProgressDialog
     lateinit var mUiSettings: UiSettings
     private val DEFAULT_LONGITUDE = -1.131592
     private val DEFAULT_LATITUDE = 52.629729
+    lateinit var searchMenu: FloatingSearchView
+
+    private var date: String = "2018-07"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-
+        searchMenu = findViewById(R.id.floating_search_view)
         progressDialog = NetworkCheck.getProgressDialog(
             this,
             "Please wait..."
@@ -41,38 +55,65 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback , LocationListener{
 
         policeDataViewModel = ViewModelProviders.of(this).get(PoliceDataViewModel::class.java)
 
-        if(NetworkCheck.isInternetConnected(this)
-            && NetworkCheck.isGoogleAvaliable(this) == ConnectionResult.SUCCESS
-        )
-        {
-            policeDataViewModel.getPoliceCrimeDataFromAPI(
-                "2017-02",
-                "52.629729",
-                "-1.131592"
-            )
-        }
-        else
-        {
-            Toast.makeText(this,"No internet found", Toast.LENGTH_LONG).show()
-        }
-
+        setupSearchBar(this)
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-            val mapFragment = supportFragmentManager
-                .findFragmentById(R.id.map) as SupportMapFragment
-            mapFragment.getMapAsync(this)
+        val mapFragment = supportFragmentManager
+            .findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
 
         policeDataViewModel.getAllCrimesList().observe(this, Observer<List<PoliceDataModel>> { policeDataList ->
             addMarkerOnMap(policeDataList)
         })
     }
 
-    fun addMarkerOnMap(policeDataList: List<PoliceDataModel>) {
-       /* for(policeData in policeDataList) {
-            mMap.addMarker(MarkerOptions().position(LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)).title("Marker in London"))
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(unitedKingdom))
-        }*/
+
+    fun setupSearchBar(context: Context) {
+        searchMenu.setOnFocusChangeListener(object : FloatingSearchView.OnFocusChangeListener {
+            val today = Calendar.getInstance()
+            override fun onFocusCleared() {
+
+            }
+
+            override fun onFocus() {
+                var builder = MonthPickerDialog.Builder(context, object : MonthPickerDialog.OnDateSetListener {
+                    override fun onDateSet(selectedMonth: Int, selectedYear: Int) {
+                        date = selectedYear.toString() + "-" + selectedMonth.toString()
+                        searchMenu.setSearchText(date)
+                    }
+                }, today.get(Calendar.YEAR), today.get(Calendar.MONTH))
+
+                builder.setActivatedMonth(Calendar.JULY)
+                    .setMinYear(1990)
+                    .setActivatedYear(2017)
+                    .setMaxYear(2030)
+                    .setMinMonth(Calendar.FEBRUARY)
+                    .setTitle("Select trading month")
+                    .setMonthRange(Calendar.FEBRUARY, Calendar.NOVEMBER)
+                    .setOnMonthChangedListener { selectedMonth -> }
+                    .setOnYearChangedListener { selectedYear -> }
+                    .build()
+                    .show()
+
+            }
+        })
     }
+
+    fun addMarkerOnMap(policeDataList: List<PoliceDataModel>) {
+        for (policeData in policeDataList) {
+            mMap.addMarker(
+                MarkerOptions().position(
+                    LatLng(
+                        policeData.location.latitude.toDouble(),
+                        policeData.location.longitude.toDouble()
+                    )
+                ).title(
+                    policeData.category
+                )
+            )
+        }
+    }
+
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -86,29 +127,43 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback , LocationListener{
         mMap = googleMap
         mUiSettings = mMap.getUiSettings();
         // Add a marker in Sydney and move the camera
-        val unitedKingdom = LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
-        mMap.addMarker(MarkerOptions().position(unitedKingdom).title("Marker in London"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(unitedKingdom))
-
+        mMap.moveCamera(
+            CameraUpdateFactory.newLatLng(
+                LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
+            )
+        )
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+            CameraPosition.Builder()
+            .target(LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE))
+            .zoom(17f).build()
+        ))
         mUiSettings.setScrollGesturesEnabled(true)
         mUiSettings.setZoomGesturesEnabled(true)
         mUiSettings.setZoomControlsEnabled(true)
+        mMap.setOnCameraIdleListener(this)
+        mMap.setOnCameraMoveStartedListener(this)
+        mMap.setOnCameraMoveListener(this)
+        mMap.setOnCameraMoveCanceledListener(this)
+
     }
 
-    override fun onLocationChanged(location: Location?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onCameraMoveStarted(p0: Int) {
+
     }
 
-    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onCameraMove() {
+
     }
 
-    override fun onProviderEnabled(provider: String?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onCameraMoveCanceled() {
+
     }
 
-    override fun onProviderDisabled(provider: String?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onCameraIdle() {
+        policeDataViewModel.getPoliceCrimeDataFromAPI(
+            date,
+            mMap.cameraPosition.target.latitude,
+            mMap.cameraPosition.target.longitude
+        )
     }
-
 }
