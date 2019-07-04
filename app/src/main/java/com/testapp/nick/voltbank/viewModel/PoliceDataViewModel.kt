@@ -29,24 +29,25 @@
  * THE SOFTWARE.
  */
 
-package com.testapp.nick.voltbank
+package com.testapp.nick.voltbank.viewModel
 
+import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.testapp.nick.voltbank.DB.PoliceDataRepository
 import com.testapp.nick.voltbank.Model.PoliceDataModel
-import com.testapp.nick.voltbank.Retrofit.ApiResponse
-import com.testapp.nick.voltbank.utils.NetworkClient
+import com.testapp.nick.voltbank.Retrofit.NetworkClient
 
 
 class PoliceDataViewModel : ViewModel() {
 
-    val responseLiveData: MutableLiveData<ApiResponse> = MutableLiveData()
-    val networkClient: NetworkClient = NetworkClient()
-    lateinit var mainActivityRepository: NetworkClient
+    val networkClient: NetworkClient = NetworkClient(this)
+    lateinit var mainActivityRepository: PoliceDataRepository
 
-    init {
-        mainActivityRepository = NetworkClient()
+
+    fun initialize(context : Context) {
+        mainActivityRepository = PoliceDataRepository()
+        mainActivityRepository.initialize(context)
     }
 
      fun getAllCrimesList(): LiveData<List<PoliceDataModel>>
@@ -54,9 +55,14 @@ class PoliceDataViewModel : ViewModel() {
        return mainActivityRepository.getCrimes()
      }
 
+     fun updateCrimeList(response: List<PoliceDataModel>) {
+         mainActivityRepository.updateCrimes(response)
+     }
+
     fun getPoliceCrimeDataFromAPI(date: String, latitude: Double, longitude: Double) {
-        networkClient.ApiCallAndPutInDB(date, latitude.toString(), longitude.toString())
+        networkClient.apiCall(date, latitude.toString(), longitude.toString())
     }
+
 
 
 }

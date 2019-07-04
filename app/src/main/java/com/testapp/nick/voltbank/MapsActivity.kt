@@ -1,8 +1,5 @@
 package com.testapp.nick.voltbank
 
-import android.app.ProgressDialog
-import android.location.Location
-import android.location.LocationListener
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.Observer
@@ -14,15 +11,11 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.testapp.nick.voltbank.utils.NetworkCheck
 import com.google.android.gms.maps.UiSettings
 import com.testapp.nick.voltbank.Model.PoliceDataModel
-import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion
-import android.widget.TextView
-import android.widget.DatePicker
-import android.app.DatePickerDialog
 import android.content.Context
 import com.google.android.gms.maps.model.CameraPosition
+import com.testapp.nick.voltbank.viewModel.PoliceDataViewModel
 import com.whiteelephant.monthpicker.MonthPickerDialog
 import java.util.*
 
@@ -36,7 +29,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private lateinit var mMap: GoogleMap
     lateinit var policeDataViewModel: PoliceDataViewModel
-    lateinit var progressDialog: ProgressDialog
     lateinit var mUiSettings: UiSettings
     private val DEFAULT_LONGITUDE = -1.131592
     private val DEFAULT_LATITUDE = 52.629729
@@ -47,17 +39,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+
+
         searchMenu = findViewById(R.id.floating_search_view)
-        progressDialog = NetworkCheck.getProgressDialog(
-            this,
-            "Please wait..."
-        )
 
         policeDataViewModel = ViewModelProviders.of(this).get(PoliceDataViewModel::class.java)
-
+        policeDataViewModel.initialize(this)
         setupSearchBar(this)
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -68,7 +57,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
 
-    fun setupSearchBar(context: Context) {
+   private fun setupSearchBar(context: Context) {
         searchMenu.setOnFocusChangeListener(object : FloatingSearchView.OnFocusChangeListener {
             val today = Calendar.getInstance()
             override fun onFocusCleared() {
@@ -114,19 +103,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         }
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mUiSettings = mMap.getUiSettings();
-        // Add a marker in Sydney and move the camera
         mMap.moveCamera(
             CameraUpdateFactory.newLatLng(
                 LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
