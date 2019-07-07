@@ -44,7 +44,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         searchMenu = findViewById(R.id.floating_search_view)
 
         policeDataViewModel = ViewModelProviders.of(this).get(PoliceDataViewModel::class.java)
-        policeDataViewModel.initialize(this)
         setupSearchBar(this)
 
         val mapFragment = supportFragmentManager
@@ -57,7 +56,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
 
-   private fun setupSearchBar(context: Context) {
+    private fun setupSearchBar(context: Context) {
         searchMenu.setOnFocusChangeListener(object : FloatingSearchView.OnFocusChangeListener {
             val today = Calendar.getInstance()
             override fun onFocusCleared() {
@@ -111,11 +110,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
                 LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
             )
         )
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
-            CameraPosition.Builder()
-            .target(LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE))
-            .zoom(17f).build()
-        ))
+        mMap.animateCamera(
+            CameraUpdateFactory.newCameraPosition(
+                CameraPosition.Builder()
+                    .target(LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE))
+                    .zoom(17f).build()
+            )
+        )
         mUiSettings.setScrollGesturesEnabled(true)
         mUiSettings.setZoomGesturesEnabled(true)
         mUiSettings.setZoomControlsEnabled(true)
