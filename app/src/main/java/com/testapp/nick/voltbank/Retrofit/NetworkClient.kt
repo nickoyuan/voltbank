@@ -11,11 +11,11 @@ import retrofit2.Response
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.Retrofit
 
-class NetworkClient(policeDataModel : PoliceDataViewModel) : RetrofitCallInterface {
+class NetworkClient(policeDataViewModel : PoliceDataViewModel) : RetrofitCallInterface {
 
     var retrofit: Retrofit? = null
     var TAG = "voltBank"
-    var dataModel = policeDataModel
+    var dataViewModel = policeDataViewModel
 
 
     override fun getRetrofitClient(): Retrofit {
@@ -28,7 +28,7 @@ class NetworkClient(policeDataModel : PoliceDataViewModel) : RetrofitCallInterfa
         return retrofit!!
     }
 
-    override fun apiCall(date: String, latitude: String, longitude: String) {
+    override fun fetchPoliceDataForCrimesByDate(date: String, latitude: String, longitude: String) {
         val gson = Gson()
         val retrofit = getRetrofitClient()
         val restApi = retrofit.create(ApiCallInterface::class.java)
@@ -43,7 +43,7 @@ class NetworkClient(policeDataModel : PoliceDataViewModel) : RetrofitCallInterfa
                 when (response!!.code()) {
                     200 -> {
                         Thread(Runnable {
-                            dataModel.updateCrimeList(response.body()!!)
+                            dataViewModel.updateCrimeList(response.body()!!)
                         }).start()
                     }
                 }

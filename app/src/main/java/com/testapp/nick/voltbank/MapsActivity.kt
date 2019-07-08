@@ -76,7 +76,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
                     .setActivatedYear(2017)
                     .setMaxYear(2030)
                     .setMinMonth(Calendar.FEBRUARY)
-                    .setTitle("Select trading month")
+                    .setTitle("Select Crime Year and Month")
                     .setMonthRange(Calendar.FEBRUARY, Calendar.NOVEMBER)
                     .setOnMonthChangedListener { selectedMonth -> }
                     .setOnYearChangedListener { selectedYear -> }

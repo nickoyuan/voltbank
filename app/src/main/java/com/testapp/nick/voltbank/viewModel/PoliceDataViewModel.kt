@@ -23,10 +23,15 @@ class PoliceDataViewModel(application : Application) : AndroidViewModel(applicat
      }
 
     fun getPoliceCrimeDataFromAPI(date: String, latitude: Double, longitude: Double) {
-        networkClient.apiCall(date, latitude.toString(), longitude.toString())
+        networkClient.fetchPoliceDataForCrimesByDate(
+            date,
+            latitude.toString(),
+            longitude.toString()
+        )
     }
 
-
-
+    fun clearAllCrimes() {
+        repository.clearAllFromCrimeList()
+    }
 }
 
