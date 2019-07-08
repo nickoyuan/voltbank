@@ -5,5 +5,5 @@ import retrofit2.Retrofit
 interface RetrofitCallInterface {
 
     fun getRetrofitClient() : Retrofit
-    fun apiCall(date : String, latitude : String, longitude: String)
+    fun fetchPoliceDataForCrimesByDate(date : String, latitude : String, longitude: String)
 }

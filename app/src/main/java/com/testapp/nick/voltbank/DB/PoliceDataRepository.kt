@@ -1,18 +1,17 @@
 package com.testapp.nick.voltbank.DB
 
-import android.content.Context
+import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.testapp.nick.voltbank.Model.PoliceDataModel
-import soumyajitdas.com.roomviewmodelkotlinsample.DB.PoliceDatabase
 
-class PoliceDataRepository {
+class PoliceDataRepository(application : Application) {
 
-    lateinit var database: PoliceDatabase
+     var database: PoliceDatabase
 
-    fun initialize(context : Context) {
-         database =  Room.databaseBuilder(
-             context,
+    init {
+        database =  Room.databaseBuilder(
+            application,
             PoliceDatabase::class.java,
             "policeData_db"
         ).fallbackToDestructiveMigration().build()
@@ -27,5 +26,9 @@ class PoliceDataRepository {
 
     fun getCrimes(): LiveData<List<PoliceDataModel>> {
         return database.policeDao().getAllPoliceRecord()
+    }
+
+    fun clearAllFromCrimeList() {
+        database.clearAllTables()
     }
 }

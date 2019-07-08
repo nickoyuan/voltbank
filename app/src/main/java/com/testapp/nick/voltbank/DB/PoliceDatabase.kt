@@ -1,4 +1,4 @@
-package soumyajitdas.com.roomviewmodelkotlinsample.DB
+package com.testapp.nick.voltbank.DB
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

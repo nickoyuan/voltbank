@@ -1,6 +1,5 @@
 package com.testapp.nick.voltbank.Model
 
-import androidx.room.Embedded
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 

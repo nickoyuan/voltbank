@@ -1,4 +1,4 @@
-package soumyajitdas.com.roomviewmodelkotlinsample.DB
+package com.testapp.nick.voltbank.DB
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
