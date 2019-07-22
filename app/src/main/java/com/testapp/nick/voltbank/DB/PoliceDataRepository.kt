@@ -2,33 +2,29 @@ package com.testapp.nick.voltbank.DB
 
 import android.app.Application
 import androidx.lifecycle.LiveData
-import androidx.room.Room
 import com.testapp.nick.voltbank.Model.PoliceDataModel
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class PoliceDataRepository(application : Application) {
 
-     var database: PoliceDatabase
+    var database: PoliceDatabase
 
     init {
-        database =  Room.databaseBuilder(
-            application,
-            PoliceDatabase::class.java,
-            "policeData_db"
-        ).fallbackToDestructiveMigration().build()
+        database =  PoliceDatabase.getDatabase(application)
     }
 
-    fun updateCrimes(response: List<PoliceDataModel>) {
-        database.policeDao().deleteAllPoliceRecord()
-        database.policeDao().insertAllPoliceRecord(
-            response
-        )
+    suspend fun updateCrimes(response: List<PoliceDataModel>) {
+            database.policeDao().updateCrimes(response)
     }
 
-    fun getCrimes(): LiveData<List<PoliceDataModel>> {
+      fun getLiveDataCrimes(): LiveData<List<PoliceDataModel>> {
         return database.policeDao().getAllPoliceRecord()
     }
 
     fun clearAllFromCrimeList() {
-        database.clearAllTables()
+        GlobalScope.launch {
+            database.clearAllTables()
+        }
     }
 }

@@ -6,6 +6,8 @@ import androidx.lifecycle.LiveData
 import com.testapp.nick.voltbank.DB.PoliceDataRepository
 import com.testapp.nick.voltbank.Model.PoliceDataModel
 import com.testapp.nick.voltbank.Retrofit.NetworkClient
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class PoliceDataViewModel(application : Application) : AndroidViewModel(application) {
@@ -13,14 +15,16 @@ class PoliceDataViewModel(application : Application) : AndroidViewModel(applicat
     var repository : PoliceDataRepository = PoliceDataRepository(application)
     val networkClient: NetworkClient = NetworkClient(this)
 
-     fun getAllCrimesList(): LiveData<List<PoliceDataModel>>
+      fun getAllCrimesList(): LiveData<List<PoliceDataModel>>
      {
-       return repository.getCrimes()
+          return repository.getLiveDataCrimes()
      }
 
-     fun updateCrimeList(response: List<PoliceDataModel>) {
-          repository.updateCrimes(response)
-     }
+    fun updateCrimeList(response: List<PoliceDataModel>) {
+        GlobalScope.launch {
+            repository.updateCrimes(response)
+        }
+    }
 
     fun getPoliceCrimeDataFromAPI(date: String, latitude: Double, longitude: Double) {
         networkClient.fetchPoliceDataForCrimesByDate(

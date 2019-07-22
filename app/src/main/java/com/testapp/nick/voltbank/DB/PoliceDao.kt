@@ -1,10 +1,7 @@
 package com.testapp.nick.voltbank.DB
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.testapp.nick.voltbank.Model.PoliceDataModel
 
 
@@ -12,11 +9,17 @@ import com.testapp.nick.voltbank.Model.PoliceDataModel
 interface PoliceDao {
 
     @Query("SELECT * FROM PoliceRecord")
-    fun getAllPoliceRecord() : LiveData<List<PoliceDataModel>>
+      fun getAllPoliceRecord() : LiveData<List<PoliceDataModel>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllPoliceRecord(countryList: List<PoliceDataModel>)
+    suspend fun insertAllPoliceRecord(countryList: List<PoliceDataModel>)
 
     @Query("DELETE FROM PoliceRecord")
-    fun deleteAllPoliceRecord()
+    suspend fun deleteAllPoliceRecord()
+
+    @Transaction
+    suspend fun updateCrimes(countryList: List<PoliceDataModel>) {
+         deleteAllPoliceRecord()
+         insertAllPoliceRecord(countryList)
+    }
 }
